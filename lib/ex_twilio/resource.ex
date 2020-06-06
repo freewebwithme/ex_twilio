@@ -75,6 +75,54 @@ defmodule ExTwilio.Resource do
         def destroy(sid, options \\ []), do: Api.destroy(__MODULE__, sid, options)
       end
 
+      # add phone number to messaging service
+      if :add in import_functions do
+        @spec add(Api.data(), String.t(), list) :: Parser.parsed_response()
+        def add(data, messaging_service_sid, options \\ []),
+          do: Api.add(__MODULE__, messaging_service_sid, data, options)
+      end
+
+      # List phone number in messaging service
+      if :list_phone_number_in_messaging_service in import_functions do
+        def list_phone_number_in_messaging_service(messaging_service_sid, options \\ []) do
+          Api.list_phone_number_in_messaging_service(__MODULE__, messaging_service_sid, options)
+        end
+      end
+
+      # get phone number in messaging service
+      if :get_phone_number_in_messaging_service in import_functions do
+        def get_phone_number_in_messaging_service(messaging_service_sid, phone_sid, options \\ []) do
+          Api.get_phone_number_in_messaging_service(
+            __MODULE__,
+            messaging_service_sid,
+            phone_sid,
+            options
+          )
+        end
+      end
+
+      if :start in import_functions do
+        @spec start(String.t(), Api.data(), list) :: Parser.parsed_response()
+        def start(api_key, data, options \\ []), do: Api.start(__MODULE__, api_key, data, options)
+      end
+
+      if :check in import_functions do
+        @spec check(String.t(), Api.data(), list) :: Parser.parsed_response()
+        def check(api_key, data, options \\ []), do: Api.check(__MODULE__, api_key, data, options)
+      end
+
+      if :add_alpha_sender_id in import_functions do
+        @spec add_alpha_sender_id(String.t(), Api.data(), list) :: Parser.parsed_response()
+        def add_alpha_sender_id(messaging_service_sid, data, options \\ []),
+          do: Api.add_alpha_sender_id(__MODULE__, messaging_service_sid, data, options)
+      end
+
+      if :get_alpha_sender_id in import_functions do
+        @spec get_alpha_sender_id(String.t(), list) :: Parser.parsed_response()
+        def get_alpha_sender_id(messaging_service_sid, options \\ []),
+          do: Api.get_alpha_sender_id(__MODULE__, messaging_service_sid, options)
+      end
+
       @doc """
       Underscored and lowercased collection name for a given resource.
       Delegates the real work to `ExTwilio.Api.resource_collection_name/1` by

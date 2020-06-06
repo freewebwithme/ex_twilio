@@ -64,10 +64,15 @@ defmodule ExTwilio.UrlGenerator do
           url = add_segments(Config.studio_url(), module, id, options)
           {url, options}
 
+        ["ExTwilio", "Services" | _] ->
+          url = add_segments(Config.messaging_service_url(), module, id, options)
+          {url, options}
+
         _ ->
           # Add Account SID segment if not already present
           options = add_account_to_options(module, options)
           url = add_segments(Config.base_url(), module, id, options) <> ".json"
+          IO.puts(">> Built url: #{url}")
           {url, options}
       end
 
@@ -91,6 +96,86 @@ defmodule ExTwilio.UrlGenerator do
   end
 
   @doc """
+  Custom URL for Phone number in Messaging Service
+  """
+
+  def build_phone_number_url(module, messaging_service_sid, options) do
+    base_url = Config.messaging_service_url()
+    url = "#{base_url}/Services/#{messaging_service_sid}/PhoneNumbers"
+    IO.puts(">> Built url: #{url}")
+    {url, options}
+
+    if Keyword.has_key?(options, :query) do
+      url <> options[:query]
+    else
+      url <> build_query(module, options)
+    end
+  end
+
+  @doc """
+  Custom URL for Phone number in Messaging Service
+  for get a phone number in messaging service
+  """
+  def build_phone_number_url(module, messaging_service_sid, phone_sid, options) do
+    base_url = Config.messaging_service_url()
+    url = "#{base_url}/Services/#{messaging_service_sid}/PhoneNumbers/#{phone_sid}"
+    IO.puts(">> Built url: #{url}")
+    {url, options}
+
+    if Keyword.has_key?(options, :query) do
+      url <> options[:query]
+    else
+      url <> build_query(module, options)
+    end
+  end
+
+  @doc """
+  Custom URL for AlphaSenderID in Messaging Service
+  """
+  def build_alpha_sender_url(module, messaging_service_sid, options) do
+    base_url = Config.messaging_service_url()
+    url = "#{base_url}/Services/#{messaging_service_sid}/AlphaSenders"
+    IO.puts(">> Built url: #{url}")
+    {url, options}
+
+    if Keyword.has_key?(options, :query) do
+      url <> options[:query]
+    else
+      url <> build_query(module, options)
+    end
+  end
+
+  @doc """
+  Build URL for Verify API
+  """
+  def build_verify_url(module, start_or_check, api_key, options) do
+    base_url = Config.authy_api_url()
+    url = "#{base_url}/#{start_or_check}?api_key=#{api_key}&"
+    IO.puts(">> Built url #{url}")
+
+    {url, options}
+
+    if Keyword.has_key?(options, :query) do
+      url <> options[:query]
+    else
+      url <> build_query(module, options)
+    end
+  end
+
+  def build_verify_check_url(module, api_key, data, options) do
+    base_url = Config.authy_api_url()
+    url = "#{base_url}/check?api_key=#{api_key}&#{data}"
+    IO.puts(">> Built url #{url}")
+    {url, options}
+
+    if Keyword.has_key?(options, :query) do
+      url <> options[:query]
+    else
+      url <> build_query(module, options)
+    end
+  end
+
+  @doc """
   Generate a list of querystring parameters for a url from an Elixir list.
 
   ## Examples
@@ -104,6 +189,16 @@ defmodule ExTwilio.UrlGenerator do
     |> Enum.flat_map(fn
       {key, value} when is_list(value) -> Enum.map(value, &{camelize(key), &1})
       {key, value} -> [{camelize(key), value}]
+    end)
+    |> URI.encode_query()
+  end
+
+  @spec to_query_string_no_camelize(list) :: String.t()
+  def to_query_string_no_camelize(list) do
+    list
+    |> Enum.flat_map(fn
+      {key, value} when is_list(value) -> Enum.map(value, &{key, &1})
+      {key, value} -> [{key, value}]
     end)
     |> URI.encode_query()
   end
